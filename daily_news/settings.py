@@ -21,7 +21,7 @@ ALLOWED_HOSTS = []
 ALLOWED_HOSTS.extend(extra_allow_host)
 
 # Timeout used for getting response from news page
-GET_RESPONSE_FROM_URL_TIMEOUT = 1 #1s
+REQUEST_ARTICLE_TIMEOUT = 1 #1s
 
 # Application definition
 
