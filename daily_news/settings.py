@@ -21,7 +21,7 @@ ALLOWED_HOSTS = []
 ALLOWED_HOSTS.extend(extra_allow_host)
 
 # Timeout used for getting response from news page
-REQUEST_ARTICLE_TIMEOUT = 1 #1s
+REQUEST_ARTICLE_TIMEOUT = 0.5 #1s
 
 # Application definition
 
@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'api',
+    'feed_generator',
     'rest_framework',
 ]
 
@@ -114,7 +115,7 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
