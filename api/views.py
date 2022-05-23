@@ -13,7 +13,7 @@ class ArticleView(generics.ListAPIView):
     """
 
     serializer_class = ArticleSerializer
-    queryset = Article.objects.filter(is_scraping=False)
+    queryset = Article.objects.all().order_by('-id')[:10]
 
 
 
