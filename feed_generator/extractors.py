@@ -8,32 +8,32 @@ import feedparser
 import requests
 from api.models import Article, Source
 from django.conf import settings
+from django.db import utils
 
 from feed_generator.content_extractor import Content_Extractor
 
 REQUEST_ARTICLE_TIMEOUT = settings.REQUEST_ARTICLE_TIMEOUT
+
+
 def download_article(url):
     """
     Download data from page and convert to BeautifulSoup object
     """
-
     try: 
-        response = requests.get(url,REQUEST_ARTICLE_TIMEOUT)
-    
+        response = requests.get(url,timeout = REQUEST_ARTICLE_TIMEOUT) 
     except requests.exceptions.Timeout:
         pass
     else:
         if response.ok:
-            return bs4.BeautifulSoup(response.content)
+            return bs4.BeautifulSoup(response.content, features="lxml")
     return ''
 
 def get_thumbnail(html, url):
     """
     Get thumbnail of the article
     """
-
     if not html:
-            return ''
+        return ''
     value = 'og:image'
     img_of_content_url = ''
     for attr in ['property', 'name']:
@@ -42,17 +42,17 @@ def get_thumbnail(html, url):
             img_of_content_url = matched_tag.attrs['content']
             break
     if not img_of_content_url:
-        value = re.compile(r'img_src|image_src')
+        value = re.compile(r'img_src')
         matched_tag = html.find('link', attrs={'rel': value})
         if matched_tag:
             img_of_content_url = matched_tag.attrs['href']
     if img_of_content_url:
         return urljoin(url, img_of_content_url)
     return ''
-    pass
 
 
-def get_content(html):
+
+def get_content(html, url):
     """
     Extract main content of the article
     """
@@ -61,7 +61,7 @@ def get_content(html):
         print('No HTML')
         return ''
     def clean_tags(html):
-        # Unwarp tags
+        # Unwrap tags
         merging_tags = ['li', 'table', 'tbody', 'tr', 'td',
                         'theader', 'tfoot', 'em', 'strong', 'i', 'u', 'b']
         tags = html.find_all(merging_tags)
@@ -88,27 +88,26 @@ def get_content(html):
 
     body = cleaned_html.find('body')
     extractor = Content_Extractor.create(body)
-    # content = extractor.extract()
     best_node = extractor.extract()
-    result =''
+
 
     def get_img(tag):
-            img_pattern = re.compile(r'\/.+(jpg|jpeg|png|webp)')
-            attrs_check = ['data-original', 'src',
-                           'srcset', 'data-src', 'data-srcset']
-            found = []
-            img_name = []
-            img_url = []
+        img_pattern = re.compile(r'\/.+(jpg|jpeg|png|webp)')
+        attrs_check = ['data-original', 'src',
+                        'srcset', 'data-src', 'data-srcset']
+        found = []
+        img_name = []
+        img_url = []
 
-            for att in attrs_check:
-                for t in tag.find_all(attrs={att: img_pattern}):
-                    found.append(t.attrs[att])
-            for n in found:
-                name = re.sub('\s.+', '', n.split('/')[-1])
-                if name not in img_name:
-                    img_name.append(name)
-                    img_url.append(n)
-            return img_url
+        for att in attrs_check:
+            for t in tag.find_all(attrs={att: img_pattern}):
+                found.append(t.attrs[att])
+        for n in found:
+            name = re.sub('\s.+', '', n.split('/')[-1])
+            if name not in img_name:
+                img_name.append(name)
+                img_url.append(n)
+        return img_url
 
     def get_img_tag(node, url):
         img_url = get_img(node)
@@ -125,8 +124,7 @@ def get_content(html):
         for c in cite:
             figcaption = figcaption + c + ' '
 
-        tag = '<figure><img src="' + img_url + '" alt=""><figcaption>' + \
-            figcaption + '</figcaption></figure>'
+        tag = '<figure><img src="' + img_url + '" alt=""><figcaption>' + figcaption + '</figcaption></figure>'
         return tag
 
     children = list(best_node.soup.children)
@@ -137,16 +135,18 @@ def get_content(html):
         for i in range(len(children)):
             if children[i] == '\n':
                 if group_text:
-                    if group_text[0] != '<' and group_text[-1] != '>':
-                        group_text = '<p>' + group_text + '</p>'
+                    # count += 1
+                    # if group_text[0] != '<' and group_text[-1] != '>':
+                    group_text = '<p>' + group_text + '</p>'
                     article_list.append(group_text)
-                group_text = ''
+                    group_text = ''
 
             elif isinstance(children[i], bs4.element.NavigableString):
                 group_text += children[i] + ' '
 
             elif children[i].name == 'br':
-                group_text += str(children[i])
+                # group_text += str(children[i])
+                pass
 
             elif children[i].name in ['a', 'blockquote', 'p', 'span', 'code', 'ul', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
                 group_text += str(children[i])
@@ -169,12 +169,7 @@ def get_content(html):
     soup = bs4.BeautifulSoup(
         '<div class="article">' + joined_articles + '</div>', 'lxml')
     content = soup.find('div', attrs={'class': 'article'})
-
-    # for node in list(best_node.soup.children):
-    #     result += f'<div> {node} </div> '
-    with open('./abc.txt', 'w+') as f:
-        f.write(str(content))
-    pass
+    return str(content)
 
 def update_news_feed():
     """
@@ -191,24 +186,33 @@ def update_news_feed():
             title = entry.title
             url = entry.link
             author = entry.author
-            published_time = datetime.datetime.fromtimestamp(time.mktime(entry.published_parsed))
+            published_time = datetime.datetime.utcfromtimestamp(time.mktime(entry.published_parsed))
             thumbnail = ''
             content = ''
             html = download_article(url)
+            is_scraping = True
             if html:
                 thumbnail = get_thumbnail(html, url)
                 content = get_content(html, url)
+                if content:
+                    is_scraping = False
+
 
             # Save article to database if it is not exist
-            Article.objects.get_or_create(
-                from_source = source,
-                topic_id = 1,
-                url = url,
-                author = author,
-                title = title,
-                published_time = published_time,
-                content = content,
-                thumbnail = thumbnail
-            )
-
-
+            try: 
+                Article.objects.get_or_create(
+                    url = url,
+                    defaults={
+                        'from_source': source,
+                        'topic_id': 1,
+                        'author': author,
+                        'title': title,
+                        'published_time': published_time,
+                        'content': content,
+                        'thumbnail': thumbnail,
+                        'is_scraping': is_scraping,
+                    }
+                )
+            except utils.DataError:
+                # TODO handle article that has too long value field
+                pass
