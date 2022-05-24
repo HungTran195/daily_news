@@ -21,13 +21,13 @@ class Source(models.Model):
 class Article(models.Model):
     from_source = models.ForeignKey(Source,on_delete=models.CASCADE)
     topic = models.ForeignKey(Topic, on_delete=models.SET_DEFAULT, default='General')
-    url = models.URLField(unique=True)
-    title = models.CharField(max_length=250)
-    thumbnail = models.URLField(blank=True)
+    url = models.URLField(unique=True, max_length=255)
+    title = models.CharField(max_length=255)
+    thumbnail = models.URLField(blank=True, max_length=255)
     author = models.CharField(max_length=250)
     published_time = models.DateTimeField()
     content = models.TextField(blank=True)
-    slug = models.SlugField(null=False, max_length=250)
+    slug = models.SlugField(null=False, max_length=255)
     is_scraping = models.BooleanField(default=True)
 
     created_at= models.DateField(auto_now_add=True)
