@@ -9,7 +9,7 @@ from .models import Article
 
 class ArticleView(generics.ListAPIView):
     """
-    Retrieve all articles from database
+    Retrieve details of articles from the database
     """
 
     serializer_class = ArticleSerializer
@@ -21,9 +21,8 @@ class ArticleDetailsView(DetailView):
     """
     Retrieve detail of the article
     """
-    def get(self,request, *args, **kwargs):
-        return HttpResponse('Detail view')
     pass
+
 
 class TopicView(DetailView):
     """
