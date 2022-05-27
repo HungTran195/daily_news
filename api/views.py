@@ -35,9 +35,6 @@ class ArticleDetailsView(APIView):
 
         serializer = ArticleDetailSerializer(content)
         return Response(data = serializer.data, status = status.HTTP_200_OK)
-        print('kwsag',kwargs)
-        return HttpResponse('ok')
-    pass
 
 
 class TopicView(DetailView):
