@@ -1,4 +1,4 @@
-from .models import Article, Source
+from .models import Article, ArticleContent, Source
 from rest_framework import serializers
 
 class ArticleSerializer(serializers.ModelSerializer):
@@ -7,7 +7,7 @@ class ArticleSerializer(serializers.ModelSerializer):
         model = Article
         fields = (
             'source', 'url', 'title', 'thumbnail', 'author', 
-            'published_time', 'content', 
+            'published_time', 
         )
     
     def get_source(self, article):
@@ -15,3 +15,11 @@ class ArticleSerializer(serializers.ModelSerializer):
         Convert source id to source name
         """
         return article.from_source.name
+
+class ArticleDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ArticleContent
+        fields = (
+            'content',
+        )
+    

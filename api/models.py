@@ -26,7 +26,6 @@ class Article(models.Model):
     thumbnail = models.URLField(blank=True, max_length=255)
     author = models.CharField(max_length=250)
     published_time = models.DateTimeField()
-    content = models.TextField(blank=True)
     slug = models.SlugField(null=False, max_length=255)
     is_scraping = models.BooleanField(default=True)
 
@@ -42,3 +41,10 @@ class Article(models.Model):
         if not self.slug:
             self.slug = slugify(self.title)
         return super().save(*args, **kwargs)
+
+class ArticleContent(models.Model):
+    article_id = models.ForeignKey(Article, on_delete=models.CASCADE)
+    content = models.TextField(blank=True)
+
+    def __str__(self):
+        return f'{self.article_id}'
