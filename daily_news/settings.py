@@ -73,11 +73,11 @@ WSGI_APPLICATION = 'daily_news.wsgi.application'
 DATABASES = {
     'postgres':{
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env.str('DATABASE_NAME'),
-        'USER': env.str('DATABASE_USER'),
-        'PASSWORD': env.str('DATABASE_PASS'),
-        'HOST': env.str('DATABASE_HOST'),
-        'PORT': env.str('DATABASE_PORT'),
+        'NAME': env.str('DATABASE_NAME', default=''),
+        'USER': env.str('DATABASE_USER', default=''),
+        'PASSWORD': env.str('DATABASE_PASS', default=''),
+        'HOST': env.str('DATABASE_HOST', default=''),
+        'PORT': env.str('DATABASE_PORT', default=''),
     },
     'extra': {
         'ENGINE': 'django.db.backends.sqlite3',
