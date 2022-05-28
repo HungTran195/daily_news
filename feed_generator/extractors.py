@@ -6,7 +6,7 @@ from urllib.parse import urljoin
 import bs4
 import feedparser
 import requests
-from api.models import Article, Source
+from api.models import Article, ArticleContent, Source
 from django.conf import settings
 from django.db import utils
 
@@ -200,7 +200,7 @@ def update_news_feed():
 
             # Save article to database if it is not exist
             try: 
-                Article.objects.get_or_create(
+                article, _ = Article.objects.get_or_create(
                     url = url,
                     defaults={
                         'from_source': source,
@@ -208,10 +208,13 @@ def update_news_feed():
                         'author': author,
                         'title': title,
                         'published_time': published_time,
-                        'content': content,
                         'thumbnail': thumbnail,
                         'is_scraping': is_scraping,
                     }
+                )
+                ArticleContent.objects.get_or_create(
+                    article_id = article,
+                    content = content
                 )
             except utils.DataError:
                 # TODO handle article that has too long value field
