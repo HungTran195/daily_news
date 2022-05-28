@@ -1,4 +1,5 @@
 import datetime
+from email.policy import default
 import re
 import time
 from urllib.parse import urljoin
@@ -178,15 +179,22 @@ def update_news_feed():
     all_sources = Source.objects.all()
 
     for source in all_sources:
+        print(f'--- Scraping {source}')
         rss_url = source.url
         data = feedparser.parse(rss_url)
-
+        
         # Extract common information of article
         for entry in data.entries:
-            title = entry.title
-            url = entry.link
-            author = entry.author
-            published_time = datetime.datetime.utcfromtimestamp(time.mktime(entry.published_parsed))
+            if not entry.get('title') and not entry.get('link'):
+                continue
+            title = entry.get('title')
+            url = entry.get('link')
+            author = entry.get('author', default = '')
+            if entry.published_parsed:
+                published_time = datetime.datetime.utcfromtimestamp(time.mktime(entry.published_parsed))
+            else: 
+                published_time = datetime.datetime.now()
+            
             thumbnail = ''
             content = ''
             html = download_article(url)

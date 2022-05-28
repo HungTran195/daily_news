@@ -6,4 +6,5 @@ class Command(BaseCommand):
     # define logic of command
 
     def handle(self, *args, **options):
+        print('Start scraping for new articles')
         update_news_feed()

@@ -24,7 +24,7 @@ class Article(models.Model):
     url = models.URLField(unique=True, max_length=255)
     title = models.CharField(max_length=255)
     thumbnail = models.URLField(blank=True, max_length=255)
-    author = models.CharField(max_length=250)
+    author = models.CharField(max_length=250, blank=True)
     published_time = models.DateTimeField()
     slug = models.SlugField(null=False, max_length=255)
     is_scraping = models.BooleanField(default=True)
