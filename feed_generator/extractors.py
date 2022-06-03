@@ -1,5 +1,4 @@
 import datetime
-from email.policy import default
 import re
 import time
 from urllib.parse import urljoin
@@ -208,7 +207,7 @@ def update_news_feed():
 
             # Save article to database if it is not exist
             try: 
-                article, _ = Article.objects.get_or_create(
+                article, created = Article.objects.get_or_create(
                     url = url,
                     defaults={
                         'from_source': source,
@@ -220,10 +219,11 @@ def update_news_feed():
                         'is_scraping': is_scraping,
                     }
                 )
-                ArticleContent.objects.get_or_create(
-                    article_id = article,
-                    content = content
-                )
+                if created:
+                    ArticleContent.objects.get_or_create(
+                        article_id = article,
+                        content = content
+                    )
             except utils.DataError:
                 # TODO handle article that has too long value field
                 pass
