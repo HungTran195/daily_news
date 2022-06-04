@@ -35,7 +35,7 @@ class Article(models.Model):
         return f'{self.from_source} | {self.title}'
 
     def get_absolute_url(self):
-        return reverse('article_detail', kwargs={'slug': self.slug})
+        return reverse('news_feed:article_detail', kwargs={'slug': self.slug, 'pk': self.id})
 
     def save(self, *args, **kwargs): 
         if not self.slug:
@@ -43,7 +43,7 @@ class Article(models.Model):
         return super().save(*args, **kwargs)
 
 class ArticleContent(models.Model):
-    article_id = models.ForeignKey(Article, on_delete=models.CASCADE)
+    article_id = models.OneToOneField(Article, on_delete=models.CASCADE)
     content = models.TextField(blank=True)
 
     def __str__(self):
