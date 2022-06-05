@@ -34,7 +34,7 @@ class Article(models.Model):
     class Meta:
         verbose_name = 'Article'
         verbose_name_plural = 'Articles'
-        ordering = ("published_time",)
+        ordering = ('-published_time',)
 
     def __str__(self):
         return f'{self.from_source} | {self.title}'
