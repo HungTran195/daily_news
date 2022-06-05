@@ -31,6 +31,11 @@ class Article(models.Model):
 
     created_at= models.DateField(auto_now_add=True)
 
+    class Meta:
+        verbose_name = 'Article'
+        verbose_name_plural = 'Articles'
+        ordering = ("published_time",)
+
     def __str__(self):
         return f'{self.from_source} | {self.title}'
 

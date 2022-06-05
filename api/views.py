@@ -14,7 +14,7 @@ class ArticleView(generics.ListAPIView):
     """
 
     serializer_class = ArticleSerializer
-    queryset = Article.objects.all().order_by('-id')
+    queryset = Article.objects.all()
 
 
 
