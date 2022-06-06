@@ -21,7 +21,9 @@ class ArticleSerializer(serializers.ModelSerializer):
         """
         Create path to get article content
         """
-        return f'{article.id}/{article.slug}'
+        request = self.context.get("request")
+        article_link = request.build_absolute_uri(f'{article.id}/{article.slug}')
+        return article_link
 
 class ArticleDetailSerializer(serializers.ModelSerializer):
     class Meta:
