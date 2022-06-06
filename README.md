@@ -3,7 +3,7 @@
 
 Daily news is a REST API used to generate custom news feed to keep you up to date with the latest articles from your favorite news website.
 
-Check out the API link: [https://my-daily-news.herokuapp.com/](https://my-daily-news.herokuapp.com/)
+Check out the API link: [https://my-daily-news.herokuapp.com/api/articles](https://my-daily-news.herokuapp.com/api/articles)
 
 #### Endpoints:
 
