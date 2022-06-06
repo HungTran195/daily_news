@@ -22,7 +22,7 @@ class ArticleSerializer(serializers.ModelSerializer):
         Create path to get article content
         """
         request = self.context.get("request")
-        article_link = request.build_absolute_uri(f'{article.id}/{article.slug}')
+        article_link = request.build_absolute_uri(f'articles/{article.id}/{article.slug}')
         return article_link
 
 class ArticleDetailSerializer(serializers.ModelSerializer):
