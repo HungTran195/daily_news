@@ -10,4 +10,5 @@ class Command(BaseCommand):
         # Remove articles that is more than 1 month old 
         # to keep the database small enough in free tire!
         year, week, _ = datetime.date.today().isocalendar()
-        print(Article.objects.filter(published_time__year=year).filter(published_time__week__lt=week-4).delete())
+        query = Article.objects.filter(published_time__year=year).filter(published_time__week__lt=week-4)
+        query.delete()
