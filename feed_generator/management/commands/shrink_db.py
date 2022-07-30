@@ -9,6 +9,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         # Remove articles that is more than 1 month old 
         # to keep the database small enough in free tire!
+        print('removing some articles')
         year, week, _ = datetime.date.today().isocalendar()
         query = Article.objects.filter(published_time__year=year).filter(published_time__week__lt=week-4)
+        print(f'Removing {query.count()} articles')
         query.delete()
